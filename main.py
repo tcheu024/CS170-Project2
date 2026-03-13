@@ -51,8 +51,8 @@ def forward_selection(data_):
             if accuracy > best_accuracy_outer:
                 best_accuracy_outer = accuracy
                 best_feature = f
-            current_set.append(best_feature)
-            print(f"Feature set {current_set} was best, accuracy is {best_accuracy_outer:.4f}")
+        current_set.append(best_feature)
+        print(f"Feature set {current_set} was best, accuracy is {best_accuracy_outer:.4f}")
 
         if best_accuracy_outer > best_accuracy:
             best_accuracy = best_accuracy_outer
