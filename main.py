@@ -62,6 +62,36 @@ def forward_selection(data_):
         
     print("finished!")
 
+#backward elimination algorithm
+def backward_elimination(data_):
+    num_features = data_.shape[1] - 1
+    current_set = list(range(1, num_features + 1))
+    best_set = []
+    best_accuracy = 0
+
+    for i in range(num_features - 1):
+        worst_feature = None
+        accuracy_outer = 0
+
+        for f in current_set:
+            possible_set_backward = [feat for feat in current_set if feat != f]
+            accuracy = nearest_neighbor(data_, possible_set_backward)
+            print(f"Using feature(s) {possible_set_backward} accuracy is {accuracy:.4f}")
+
+            if accuracy > accuracy_outer:
+                accuracy_outer = accuracy
+                worst_feature = f
+        
+        current_set.remove(worst_feature)
+        print(f"Feature set {current_set} was best, accuracy is {accuracy_outer:.4f}")
+
+        if accuracy_outer > best_accuracy:
+            best_accuracy = accuracy_outer
+            best_set = list(current_set)
+        else:
+            print("Warning: Accuracy has decreased! Continuing search in case of local maxima")
+    
+    print("finished!")
 
 
 #check if data is loaded correctly
@@ -71,4 +101,5 @@ if __name__ == "__main__":
     #test the nearest neighbor classifier
     #all_features = list(range(1, data.shape[1]))
     #print(nearest_neighbor(data, all_features))
-    forward_selection(data)
+    ##forward_selection(data)
+    backward_elimination(data)
