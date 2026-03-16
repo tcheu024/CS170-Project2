@@ -1,5 +1,6 @@
 # Nearest Neighbor Classifier 
 import numpy as np
+import time
 
 #Load training data
 def load_data(filename):
@@ -15,7 +16,6 @@ def nearest_neighbor(data, feature_set):
     labels = data[:, 0]  
     X = data[:, feature_set]
     correct = 0
-
     for i in range(N):
         best_distance = float('inf')
         best_label = None
@@ -46,21 +46,22 @@ def forward_selection(data_):
                 continue
             possible_set = current_set + [f]
             accuracy = nearest_neighbor(data_, possible_set)
-            print(f"Using feature(s) {possible_set} accuracy is {accuracy:.4f}")
+            print(f"\tUsing feature(s) {{{', '.join(map(str, possible_set))}}} accuracy is" + f" {accuracy*100:.1f}%")
 
             if accuracy > best_accuracy_outer:
                 best_accuracy_outer = accuracy
                 best_feature = f
         current_set.append(best_feature)
-        print(f"Feature set {current_set} was best, accuracy is {best_accuracy_outer:.4f}")
-
         if best_accuracy_outer > best_accuracy:
             best_accuracy = best_accuracy_outer
             best_set = list(current_set)
         else: 
             print("Warning: Accuracy has decreased! Continuing search in case of local maxima")
+        print(f"Feature set {{{', '.join(map(str, current_set))}}} was best, accuracy is" + f" {best_accuracy_outer*100:.1f}%")
+
         
-    print("finished!")
+
+    print(f"\nFinished! Best feature subset is {{{', '.join(map(str, best_set))}}} with accuracy" + f" {best_accuracy*100:.1f}%")
 
 #backward elimination algorithm
 def backward_elimination(data_):
@@ -76,23 +77,23 @@ def backward_elimination(data_):
         for f in current_set:
             possible_set_backward = [feat for feat in current_set if feat != f]
             accuracy = nearest_neighbor(data_, possible_set_backward)
-            print(f"Using feature(s) {possible_set_backward} accuracy is {accuracy:.4f}")
+            print(f"\tUsing feature(s) {{{', '.join(map(str, possible_set_backward))}}} accuracy is" + f" {accuracy*100:.1f}%")
 
             if accuracy > accuracy_outer:
                 accuracy_outer = accuracy
                 worst_feature = f
         
         current_set.remove(worst_feature)
-        print(f"Feature set {current_set} was best, accuracy is {accuracy_outer:.4f}")
-
         if accuracy_outer > best_accuracy:
             best_accuracy = accuracy_outer
             best_set = list(current_set)
         else:
             print("Warning: Accuracy has decreased! Continuing search in case of local maxima")
-    
-    print("finished!")
+        print(f"Feature set {{{', '.join(map(str, current_set))}}} was best, accuracy is" + f" {accuracy_outer*100:.1f}%")
 
+        
+
+    print(f"\nFinished! Best feature subset is {{{', '.join(map(str, best_set))}}} with accuracy" + f" {best_accuracy*100:.1f}%")
 
 #check if data is loaded correctly
 if __name__ == "__main__":
@@ -104,40 +105,46 @@ if __name__ == "__main__":
     ##forward_selection(data)
     #backward_elimination(data)
 
-    filename = input("Enter the 1 for big dataset or 2 for small dataset: ")
-    if filename == "1":
-        data = load_data('CS170_Large_DataSet__49.txt')
-    elif filename == "2":
-        data = load_data('CS170_Small_DataSet__94.txt')
-    else:
-        print("Invalid input, defaulting to small dataset for faster testing.")
-        data = load_data('CS170_Small_DataSet__94.txt')
-    
+    print("Welcome to Tim Cheung's Feature Selection Algorithm.\n")
+    filename = input("Type the name of the file you want to test: ")
+    data = load_data(filename)
+
+    #filename = input("Enter the 1 for big dataset or 2 for small dataset: ")
+    #if filename == "1":
+        #data = load_data('CS170_Large_DataSet__49.txt')
+    #elif filename == "2":
+        #data = load_data('CS170_Small_DataSet__94.txt')
+    #else:
+        #print("Invalid input, defaulting to small dataset for faster testing.")
+        #data = load_data('CS170_Small_DataSet__94.txt')
+
     num_features = data.shape[1] - 1
-    num_features = data.shape[0]
-    print(f"Number of features: {num_features}")
+    num_instances = data.shape[0]
+    print(f"This dataset has {num_features} features (not including the class attribute), with {num_instances} instances.\n")
 
     all_features = list(range(1, data.shape[1]))
     accuracy_all = nearest_neighbor(data, all_features)
-    print(f"Accuracy using all features: {accuracy_all:.4f}")
+    print(f'\nRunning nearest neighbor with all {num_features} features, accuracy is' + f" {accuracy_all*100:.1f}%\n")
 
-    print("Type 1 for forward selection or 2 for backward elimination: ")
-    selection = input("Enter your choice: ")
+    print("Type the number of algorithm you want to run.")
+    print("1. Forward Selection")
+    print("2. Backward Elimination")
+    
+    selection = input("\n").strip()
 
     if selection == "1":
+        start_time = time.time()
         forward_selection(data)
+        end_time = time.time()
+        print(f"Forward Selection took {end_time - start_time:.2f} seconds.")
+        
     elif selection == "2":
+        start_time = time.time()    
         backward_elimination(data)
+        end_time = time.time()
+        print(f"Backward Elimination took {end_time - start_time:.2f} seconds.")
     else:
         print("Invalid selection.")
 
-
-
-#forward selection on small dataset:
-#Feature set [11, 14, 4, 15, 3, 12, 16, 13, 2, 6, 5, 7, 10, 9, 1, 8] was best, accuracy is 0.7120
-#backward elimination on small dataset:
-#Feature set [11] was best, accuracy is 0.8120
-
-
-#success
+   
 
