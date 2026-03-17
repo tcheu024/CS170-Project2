@@ -13,19 +13,15 @@ def euclidean_distance(x1, x2):
 # Create the nearest neighbor classifier
 def nearest_neighbor(data, feature_set):
     N = data.shape[0]
-    labels = data[:, 0]  
+    labels = data[:, 0]
     X = data[:, feature_set]
     correct = 0
+
     for i in range(N):
-        best_distance = float('inf')
-        best_label = None
-        for j in range(N):
-            if i == j:
-                continue
-            distance = euclidean_distance(X[i], X[j])
-            if distance < best_distance:
-                best_distance = distance
-                best_label = labels[j]
+        diffs = X - X[i]
+        distances = np.sqrt(np.sum(diffs ** 2, axis=1))
+        distances[i] = np.inf  # exclude self
+        best_label = labels[np.argmin(distances)]
         if best_label == labels[i]:
             correct += 1
     return correct / N
@@ -67,8 +63,8 @@ def forward_selection(data_):
 def backward_elimination(data_):
     num_features = data_.shape[1] - 1
     current_set = list(range(1, num_features + 1))
-    best_set = []
-    best_accuracy = 0
+    best_set = list(current_set)
+    best_accuracy = nearest_neighbor(data_, current_set)
 
     for i in range(num_features - 1):
         worst_feature = None
